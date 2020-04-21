@@ -1,0 +1,74 @@
+import os.path
+import glob
+import tempfile
+import subprocess
+import argparse
+from PyPDF2 import PdfFileReader, PdfFileWriter
+
+
+def merge_pages(path_1, path_2):
+    page_1_reader = PdfFileReader(path_1)
+    page_2_reader = PdfFileReader(path_2)
+
+    master_page = page_1_reader.getPage(0)
+    overlay_page = page_2_reader.getPage(0)
+
+    (tx, ty) = translateToCenter(master_page.mediaBox, overlay_page.mediaBox)
+    master_page.mergeTranslatedPage(overlay_page, tx, ty)
+
+    return master_page
+
+
+def translateToCenter(rect1, rect2):
+    (x1, y1) = rect1.upperRight
+    (x2, y2) = rect2.upperRight
+    return ((x1 - x2) / 2, (y1 - y2) / 2)
+
+
+def compress_pdf(input, output):
+    gs = f"gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.6 -dPDFSETTINGS=/ebook -dNOPAUSE -dQUIET -dBATCH -sOutputFile={output} {input}"
+    subprocess.call(gs, shell=True)
+
+
+def process_files(output, pages, text):
+    pdf_writer = PdfFileWriter()
+
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        for page_path, text_path in zip(pages, text):
+            compressed_file = os.path.join(
+                tmpdirname, os.path.basename(page_path))
+
+            print(
+                f"processing: {os.path.basename(page_path)} & {os.path.basename(text_path)}")
+
+            compress_pdf(page_path, compressed_file)
+
+            pdf_writer.addPage(merge_pages(compressed_file, text_path))
+
+    with open(output, 'wb') as fh:
+        print(f"writing output file: {output}")
+        pdf_writer.write(fh)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='Combine image and text PDFs into low-res PDF')
+    parser.add_argument('image_dir', type=str,
+                        help='Directory containing image PDFs')
+    parser.add_argument('text_dir', type=str,
+                        help='Directory containing text PDFs')
+    parser.add_argument('output_file', type=str,
+                        help='File path to save PDF file')
+
+    args = vars(parser.parse_args())
+
+    pages = sorted(glob.glob(args['image_dir']+'/*.pdf'))
+    text = sorted(glob.glob(args['text_dir']+'/*.pdf'))
+    process_files(args['output_file'], pages, text)
+
+# Example Terminal useage:
+# To get help:
+# -> python3 make_ebook_pdf.py --help
+#
+# To run the program (replace example args with locations of files to process):
+# -> python3 make_ebook_pdf.py /Documents/image_pdfs /Documents/text_pdfs /Documents/output.pdf
