@@ -40,48 +40,46 @@ def process_files(output, pages, text):
 
     with tempfile.TemporaryDirectory() as tmpdirname:
         for page_path, text_path in zip(pages, text):
-            compressed_file_path = os.path.join(
-                tmpdirname, os.path.basename(page_path))
+            compressed_file_path = os.path.join(tmpdirname, os.path.basename(page_path))
 
             print(
-                f"processing: {os.path.basename(page_path)} & {os.path.basename(text_path)}")
+                f"processing: {os.path.basename(page_path)} & {os.path.basename(text_path)}"
+            )
 
             compress_pdf(page_path, compressed_file_path)
 
             pdf_writer.addPage(merge_pages(compressed_file_path, text_path))
 
-    with open(output, 'wb') as fh:
+    with open(output, "wb") as fh:
         print(f"writing output file: {output}")
         pdf_writer.write(fh)
 
 
 def pdf_files(dir):
-    return sorted(glob.glob(dir+'/*.[pP][dD][fF]'))
+    return sorted(glob.glob(dir + "/*.[pP][dD][fF]"))
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Combine image and text PDFs into low-res PDF')
-    parser.add_argument('image_dir', type=str,
-                        help='Directory containing image PDFs')
-    parser.add_argument('text_dir', type=str,
-                        help='Directory containing text PDFs')
-    parser.add_argument('output_file', type=str,
-                        help='File path to save PDF file')
+        description="Combine image and text PDFs into low-res PDF"
+    )
+    parser.add_argument("image_dir", type=str, help="Directory containing image PDFs")
+    parser.add_argument("text_dir", type=str, help="Directory containing text PDFs")
+    parser.add_argument("output_file", type=str, help="File path to save PDF file")
 
     args = vars(parser.parse_args())
 
-    pages = pdf_files(args['image_dir'])
-    text = pdf_files(args['text_dir'])
-    process_files(args['output_file'], pages, text)
+    pages = pdf_files(args["image_dir"])
+    text = pdf_files(args["text_dir"])
+    process_files(args["output_file"], pages, text)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
 
 # Example Terminal useage:
 # To get help:
-# -> python3 make_ebook_pdf.py --help
+# -> python3 squashPDFs.py --help
 #
 # To run the program (replace example args with locations of files to process):
-# -> python3 make_ebook_pdf.py /Documents/image_pdfs /Documents/text_pdfs /Documents/output.pdf
+# -> python3 squashPDFs.py /Documents/image_pdfs /Documents/text_pdfs /Documents/output.pdf
