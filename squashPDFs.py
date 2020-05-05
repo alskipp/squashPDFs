@@ -82,4 +82,4 @@ if __name__ == "__main__":
 # -> python3 squashPDFs.py --help
 #
 # To run the program (replace example args with locations of files to process):
-# -> python3 squashPDFs.py /Documents/image_pdfs /Documents/text_pdfs /Documents/output.pdf
+# -> python3 squashPDFs.py ~/Documents/image_pdfs ~/Documents/text_pdfs ~/Documents/output.pdf
