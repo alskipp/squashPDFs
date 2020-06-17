@@ -24,6 +24,8 @@ If you use the [Nix package manager](https://nixos.org/nix) then in the terminal
 
 Otherwise ensure you have `Python3.8`, `pyPDF2` and `Ghostscript` installed.
 
-## Nix installation on Mac OS Catalina
+## Installing Nix
 
-For Mac OS Catalina users the installation requires some [extra setup](https://github.com/NixOS/nix/issues/2925#issuecomment-539570232)
+Instructions for [Linux and pre macOS Catalina](https://nixos.org/download.html)
+
+For macOS Catalina users the recommended method is [here](https://nixos.org/nix/manual/#sect-macos-installation)
